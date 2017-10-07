@@ -1,0 +1,22 @@
+name: x1vs1
+main: x1vs1\x1vs1
+version: 1.0.0
+api: 2.0.0
+load: STARTUP
+author: AkeKy
+authors: [AkeKy]
+description: PvPTeam
+website: https://github.com/PocketMine/SimpleAuth
+commands:
+  arenaset:
+    description: "Allows use everything"
+    usage: "/pvp <create:join>"
+    permission: x1vs1.arenaset
+permissions:
+  x1vs1:
+    default: false
+    description: "Allows using everything SimpleAuth has"
+    children:
+      x1vs1.arenaset:
+        description: "Allows using the chat while not being authenticated"
+        default: op
