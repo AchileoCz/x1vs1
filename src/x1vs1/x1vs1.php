@@ -12,7 +12,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\event\entity\{EntityDamageEvent, EntityDamageByEntityEvent, EntityTeleportEvent};
 use pocketmine\level\Position;
 use pocketmine\level\Location;
-use pocketmine\event\player\{PlayerQuitEvent, PlayerDeathEvent, PlayerJoinEvent};
+use pocketmine\event\player\{PlayerQuitEvent, PlayerDeathEvent, PlayerJoinEvent, PlayerChatEvent};
 use x1vs1\Arena;
 use pocketmine\item\Item;
 
@@ -30,6 +30,7 @@ class x1vs1 extends PluginBase implements Listener{
 		$this->saveDefaultConfig();
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->config = new Config($this->getDataFolder()."config.yml", Config::YAML, array());
+		$this->orcore = $this->getServer()->getPluginManager()->getPlugin("xORCore");
 		// if(!$this->config->arenas){
 		// 	$this->config->set('arenas', []);
 		// 	$arenaPositions = [];
@@ -40,6 +41,10 @@ class x1vs1 extends PluginBase implements Listener{
 		//$arenaPositions = $this->config->get('arenas');
 
 		$this->getLogger()->info("§bEverything loaded!");
+	}
+
+	public function getORCore(){
+		return $this->orcore;
 	}
 
 	public function onDisable(){
@@ -95,8 +100,8 @@ class x1vs1 extends PluginBase implements Listener{
 
 	public function addPlayerToQueue(array $player){
 		array_push($this->queue, $player);
-		$player[0]->sendMessage('พวกคุณกำลังเข้าคิว');
-		$player[1]->sendMessage('พวกคุณกำลังเข้าคิว');
+		$player[0]->sendMessage('§aพวกคุณกำลังเข้าคิว');
+		$player[1]->sendMessage('§aพวกคุณกำลังเข้าคิว');
 		$this->launchNewRounds();
 	}
 
@@ -208,21 +213,21 @@ class x1vs1 extends PluginBase implements Listener{
     						$this->loadLevel();
 	    				}
 	    				if($this->checkPlayerInQueue($damage)){
-	    					$damage->sendMessage('คู่ของคุณกำลังรอคิวอยู่');
+	    					$damage->sendMessage('§aคู่ของคุณกำลังรอคิวอยู่');
 	    					$event->setCancelled(true);
 	    					return;
 	    				}
 	    				if(isset($this->wait[$damage->getName()]) && isset($this->wait[$entity->getName()])){
 	    					if(($this->wait[$damage->getName()][1] == $entity->getName()) && $this->wait[$entity->getName()][1] == $damage->getName()){
 	    						$event->setCancelled(true);
-	    						$damage->sendMessage('คู่ของคุณกำลังรอคิวอยู่');
+	    						$damage->sendMessage('§aคู่ของคุณกำลังรอคิวอยู่');
 	    						return;
 	    					}
 	    				}
 
 	    				if($this->hasWait($damage, $entity)){
-	    					$damage->sendMessage('คุณตอบรับคำท้าแล้ว');
-	    					$entity->sendMessage('ฝ่ายตรงข้ามตอบรับคำท้า');
+	    					$damage->sendMessage('§aคุณตอบรับคำท้าแล้ว');
+	    					$entity->sendMessage('§aฝ่ายตรงข้ามตอบรับคำท้า');
 	    					$this->addWait($damage, $entity);
 	    					$this->addPlayerToQueue([$damage, $entity]);
 	    					$event->setCancelled(true);
@@ -230,8 +235,8 @@ class x1vs1 extends PluginBase implements Listener{
 	    				}else{
 	    					$this->addWait($damage, $entity);
 	    					// $this->addWait($entity, $damage);
-	    					$damage->sendMessage('รอฝ่ายตรงข้ามยอมรับ');
-	    					$entity->sendMessage($damage->getName(). ' ได้ท้าคุณ');
+	    					$damage->sendMessage('§eรอฝ่ายตรงข้ามยอมรับ');
+	    					$entity->sendMessage('§b'.$damage->getName(). ' §aได้ท้าคุณ');
 	    					$event->setCancelled(true);
 	    					return;
 	    				}
@@ -282,6 +287,18 @@ class x1vs1 extends PluginBase implements Listener{
 	public function onJoin(PlayerJoinEvent $event){
 		$player = $event->getPlayer();
 		$player->getInventory()->addItem(Item::get(369));
+	}
+
+	public function onChat(PlayerChatEvent $event){
+		$player = $event->getPlayer();
+		$arena = $this->getPlayerArena($player);
+		$event->setCancelled(true);
+		if($arena !== null){
+			$players = $arena->players;
+			foreach($players as $pl){
+				$pl->sendMessage($this->getORCore()->setChat($event->getPlayer(), $event->getMessage()));
+			}
+		}
 	}
 
 	// public function onTeleport(EntityTeleportEvent $event){
