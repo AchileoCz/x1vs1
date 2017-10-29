@@ -31,6 +31,11 @@ class x1vs1 extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->config = new Config($this->getDataFolder()."config.yml", Config::YAML, array());
 		$this->orcore = $this->getServer()->getPluginManager()->getPlugin("xORCore");
+        if($this->orcore == null){
+            $this->getLogger()->error("§cPlease install §bxORCore");
+            $this->setEnabled(false);
+            return false;
+        }
 		// if(!$this->config->arenas){
 		// 	$this->config->set('arenas', []);
 		// 	$arenaPositions = [];
