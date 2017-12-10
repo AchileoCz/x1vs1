@@ -36,14 +36,6 @@ class x1vs1 extends PluginBase implements Listener{
             $this->setEnabled(false);
             return false;
         }
-		// if(!$this->config->arenas){
-		// 	$this->config->set('arenas', []);
-		// 	$arenaPositions = [];
-		// }else{
-		// 	$arenaPositions = $this->config->arenas;
-		// }
-
-		//$arenaPositions = $this->config->get('arenas');
 
 		$this->getLogger()->info("§bEverything loaded!");
 	}
