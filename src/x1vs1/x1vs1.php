@@ -289,19 +289,12 @@ class x1vs1 extends PluginBase implements Listener{
 	public function onChat(PlayerChatEvent $event){
 		$player = $event->getPlayer();
 		$arena = $this->getPlayerArena($player);
-		$event->setCancelled(true);
 		if($arena !== null){
+			$event->setCancelled(true);
 			$players = $arena->players;
 			foreach($players as $pl){
 				$pl->sendMessage($this->getORCore()->setChat($event->getPlayer(), $event->getMessage()));
 			}
 		}
 	}
-
-	// public function onTeleport(EntityTeleportEvent $event){
-	// 	$player = $event->getEntity();
-	// 	if($event->getTo()->getLevel()->getFolderName() == 'Hub'){
-	// 		$player->getInventory()->addItem(Item::get(369));
-	// 	}
-	// }
 }
