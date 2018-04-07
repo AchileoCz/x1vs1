@@ -6,7 +6,7 @@ use pocketmine\item\Item;
 use pocketmine\utils\TextFormat;
 use pocketmine\math\Vector3;
 use \DateTime;
-use x1vs1\x1vs1;;
+use x1vs1\x1vs1;
 class Arena{
 	public $active = FALSE;
 	
@@ -53,9 +53,23 @@ class Arena{
 		$this->players = $players;
 		$player1 = $players[0];
 		$player2 = $players[1];
+
+		$pos_player1 = Position::fromObject($this->position, $this->position->getLevel());
+		$pos_player1->x += self::PLAYER_1_OFFSET_X;
 		
-		$player1->sendMessage('เริ่มสู้กับ '. $player2->getName());
-		$player2->sendMessage('เริ่มสู้กับ '. $player1->getName());
+		$pos_player2 = Position::fromObject($this->position, $this->position->getLevel());
+		$pos_player2->x += self::PLAYER_2_OFFSET_X;
+		$player1->teleport($pos_player1, 90, 0);
+		$player2->teleport($pos_player2, -90, 0);
+		if(!$player1->isImmobile()){
+			$player1->setImmobile(true);
+		}
+		if(!$player2->isImmobile()){
+			$player2->setImmobile(true);
+		}
+		
+		$player1->sendMessage('สู้กับ '. $player2->getName());
+		$player2->sendMessage('สู้กับ '. $player1->getName());
 		// Create a new countdowntask
 		$task = new CountDownToDuelTask($this->plugin, $this);
 		$this->countdownTaskHandler = $this->plugin->getServer()->getScheduler()->scheduleDelayedRepeatingTask($task, 20, 20);
@@ -70,22 +84,13 @@ class Arena{
 		
 		$player1 = $this->players[0];
 		$player2 = $this->players[1];
-		
-		$pos_player1 = Position::fromObject($this->position, $this->position->getLevel());
-		$pos_player1->x += self::PLAYER_1_OFFSET_X;
-		
-		$pos_player2 = Position::fromObject($this->position, $this->position->getLevel());
-		$pos_player2->x += self::PLAYER_2_OFFSET_X;
-		$player1->teleport($pos_player1, 90, 0);
-		$player2->teleport($pos_player2, -90, 0);
-		$player1->setGamemode(0);
-		$player2->setGamemode(0);
-		
-		// Give kit
-		foreach ($this->players as $player){
-			$this->giveKit($player);
+		if($player1->isImmobile()){
+			$player1->setImmobile(false);
 		}
-		
+		if($player2->isImmobile()){
+			$player2->setImmobile(false);
+		}
+
 		// Fix start time
 		$this->startTime = new DateTime('now');
 		
@@ -110,27 +115,6 @@ class Arena{
 	public function abortDuel(){
 		$this->plugin->getServer()->getScheduler()->cancelTask($this->countdownTaskHandler->getTaskId());
 	}
-	
-	private function giveKit(Player $player){
-		// Clear inventory
-		$player->getInventory()->clearAll();
-		
-		// Give sword, food and armor
-		$player->getInventory()->addItem(Item::get(Item::IRON_SWORD));
-		$player->getInventory()->addItem(Item::get(Item::BREAD));
-		$player->getInventory()->setItemInHand(Item::get(Item::IRON_SWORD), $player);
-		
-		// Pur the armor on the player
-		$player->getInventory()->setHelmet(Item::get(302, 0, 1));
-		$player->getInventory()->setChestplate(Item::get(303, 0, 1));
-		$player->getInventory()->setLeggings(Item::get(304, 0, 1));
-		$player->getInventory()->setBoots(Item::get(305, 0, 1));
-		$player->getInventory()->sendArmorContents($player);
-		
-		// Set his life to 20
-		$player->setHealth(20);
-		$player->removeAllEffects();
-   }
    
    /**
     * When a player was killed

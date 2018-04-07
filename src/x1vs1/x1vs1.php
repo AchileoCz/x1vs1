@@ -203,7 +203,7 @@ class x1vs1 extends PluginBase implements Listener{
             $entity = $event->getEntity();
             $damage = $event->getDamager();
     		if($entity instanceof Player && $damage instanceof Player){
-    			if($entity->getLevel()->getFolderName() == 'Hub'){
+    			if($entity->getLevel()->getFolderName() == 'Lobby'){
     				if($damage->getInventory()->getItemInHand()->getId() == 369){
         				if($this->status == false){
         					$this->status = true;
@@ -273,17 +273,20 @@ class x1vs1 extends PluginBase implements Listener{
 			$event->setDrops([]);
 			$event->setKeepInventory(false);
 			$arena->onPlayerDeath($deadPlayer);
+			$event->setDeathMessage('');
 		}
 	}
 
 	public function onPlayerQuit(PlayerQuitEvent $event){
 		$player = $event->getPlayer();
 		$this->removePlayerFromQueueOrArena($player);
+		$event->setQuitMessage('');
 	}
 
 	public function onJoin(PlayerJoinEvent $event){
 		$player = $event->getPlayer();
 		$player->getInventory()->addItem(Item::get(369));
+		$event->setJoinMessage('');
 	}
 
 	public function onChat(PlayerChatEvent $event){
